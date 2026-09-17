@@ -1,10 +1,5 @@
 # TP1 · Spring Boot, API REST y arquitectura en capas
 
-Punto de partida del práctico. Está armada la **configuración e
-infraestructura transversal** que van a necesitar sin importar cómo
-resuelvan cada consigna; lo que falta —el diseño y la lógica propia de cada
-recurso— se va a ir sumando a esta rama a medida que avance la cursada.
-
 ## Cómo levantar el proyecto
 
 Requiere Java 25. Usar siempre el wrapper, nunca un `mvn` instalado aparte:
@@ -17,51 +12,41 @@ Requiere Java 25. Usar siempre el wrapper, nunca un `mvn` instalado aparte:
 ./mvnw spring-boot:run
 ```
 
-Cuando el log muestre `Started DemoApplication`, la app queda escuchando en
-`http://localhost:8080`.
+Cuando el log muestre `Started DemoApplication`, la app queda escuchando en `http://localhost:8080`.
 
 Para compilar y correr los tests: `./mvnw test` (o `.\mvnw.cmd test`).
 
-## Endpoints disponibles hoy
+## Endpoints de la API
 
-| Método | Path | Qué hace |
-|---|---|---|
-| GET | `/health` | Chequeo de salud básico |
-| GET | `/ping` | Devuelve `pong`, sin JSON — otro chequeo trivial |
+La aplicación cuenta con dos grupos de endpoints principales, los cuales pueden explorarse interactiva y visualmente a través de la documentación de Swagger:
 
-```
-curl http://localhost:8080/health
-curl http://localhost:8080/ping
-```
+- **Swagger UI:** http://localhost:8080/swagger-ui.html
 
-## Qué ya está armado
+### Catálogo de productos (consumo de un servicio externo)
 
-- **`config/RestClientConfig`**: bean de `RestClient` apuntado a la
-  `base-url` de DummyJSON (`app.dummyjson.base-url` en
-  `application.properties`). Listo para inyectar.
-- **`config/OpenApiConfig`**: metadata general de Swagger UI.
-- **`client/dummyjson/DummyJsonProducto` y `DummyJsonProductosResponse`**:
-  la forma exacta del JSON que devuelve `https://dummyjson.com/products` —
-  para no tener que adivinar los nombres de campo del proveedor externo.
-- **`exception/GlobalExceptionHandler`** (+ `RecursoNoEncontradoException` y
-  `ServicioExternoException`): manejo uniforme de errores para toda la API
-  (`ProblemDetail`). Ya contempla 404 y errores de un servicio externo —
-  se reusa tal cual para cualquier recurso nuevo que se agregue.
+- **GET `/api/productos`**: Retorna el listado de productos de DummyJSON (mapeados a un DTO propio). Soporta los parámetros `limit` y `skip`.
+- **GET `/api/productos/{id}`**: Retorna los datos de un producto específico.
 
-## Qué falta (eso es la consigna)
+### Favoritos (CRUD completo en memoria)
 
-- Un cliente propio (`DummyJsonClient` o como se llame) que use el
-  `RestClient` ya configurado para llamar a `/products` y `/products/{id}`,
-  manejando los errores de red/HTTP con las excepciones ya definidas.
-- Un DTO propio para el producto (no el JSON externo tal cual) y el
-  service/controller de `/api/productos`.
-- Todo el recurso de favoritos: entidad, repository en memoria, DTOs,
-  service y controller CRUD.
-- Anotar los controllers con `@Tag`/`@Operation` para que Swagger UI los
-  documente.
+- **POST `/api/favoritos`**: Crea un nuevo favorito enviando un body JSON.
+- **GET `/api/favoritos`**: Lista todos los favoritos almacenados.
+- **GET `/api/favoritos/{id}`**: Retorna un favorito específico.
+- **PUT `/api/favoritos/{id}`**: Actualiza los datos de un favorito.
+- **DELETE `/api/favoritos/{id}`**: Elimina un favorito.
 
-## Dependencias
+## Dependencias utilizadas
 
 - `spring-boot-starter-webmvc` — Spring MVC + Tomcat embebido.
 - `spring-boot-starter-validation` — Bean Validation (`@NotNull`, `@NotBlank`, ...).
 - `springdoc-openapi-starter-webmvc-ui` — Swagger UI / OpenAPI.
+
+## Pruebas de la API (Casos de éxito y error)
+
+En la raíz de este repositorio se incluye el archivo **`api-tests.http`**. 
+Este archivo contiene la **colección de peticiones HTTP** requerida para evidenciar los casos de éxito y de error para cada uno de los recursos (Productos y Favoritos). 
+
+Para ejecutar las pruebas:
+1. Instalar la extensión **REST Client** en VS Code.
+2. Levantar la aplicación.
+3. Abrir `api-tests.http` y hacer click en *Send Request* arriba de cada bloque para verificar las respuestas correctas y los errores controlados (400, 404, etc.).

@@ -1,0 +1,85 @@
+### ==============================================================
+### CATÁLOGO DE PRODUCTOS (DummyJSON)
+### ==============================================================
+
+### 1. (Éxito) Listar productos
+GET http://localhost:8080/api/productos?limit=5&skip=0
+Accept: application/json
+
+###
+
+### 2. (Éxito) Obtener un producto existente
+GET http://localhost:8080/api/productos/1
+Accept: application/json
+
+###
+
+### 3. (Error) Obtener un producto que no existe en DummyJSON (Debe dar 404 Not Found)
+GET http://localhost:8080/api/productos/999999
+Accept: application/json
+
+###
+
+
+### ==============================================================
+### FAVORITOS (Memoria)
+### ==============================================================
+
+### 4. (Éxito) Crear un favorito
+POST http://localhost:8080/api/favoritos
+Content-Type: application/json
+
+{
+  "idProductoExterno": 1,
+  "notaPersonal": "Me encantó este producto, lo quiero comprar el mes que viene"
+}
+
+###
+
+### 5. (Error) Crear un favorito sin datos obligatorios (Debe dar 400 Bad Request por validación)
+POST http://localhost:8080/api/favoritos
+Content-Type: application/json
+
+{
+  "idProductoExterno": null,
+  "notaPersonal": ""
+}
+
+###
+
+### 6. (Éxito) Listar favoritos
+GET http://localhost:8080/api/favoritos
+Accept: application/json
+
+###
+
+### 7. (Éxito) Obtener el favorito con ID 1
+GET http://localhost:8080/api/favoritos/1
+Accept: application/json
+
+###
+
+### 8. (Error) Obtener un favorito inexistente (Debe dar 404 Not Found)
+GET http://localhost:8080/api/favoritos/999
+Accept: application/json
+
+###
+
+### 9. (Éxito) Actualizar un favorito
+PUT http://localhost:8080/api/favoritos/1
+Content-Type: application/json
+
+{
+  "idProductoExterno": 2,
+  "notaPersonal": "Cambié de opinión, este otro modelo me gusta más"
+}
+
+###
+
+### 10. (Éxito) Eliminar un favorito
+DELETE http://localhost:8080/api/favoritos/1
+
+###
+
+### 11. (Error) Eliminar un favorito que ya no existe (Debe dar 404 Not Found)
+DELETE http://localhost:8080/api/favoritos/1
