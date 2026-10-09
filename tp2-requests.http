@@ -1,0 +1,161 @@
+### ==============================================================================
+### TP2 · Persistencia, Listas, Favoritos, Flyway y Transacciones
+### Colección de Requests HTTP (compatible con VS Code REST Client / IntelliJ HTTP)
+### ==============================================================================
+
+@baseUrl = http://localhost:8080
+
+### ------------------------------------------------------------------------------
+### 1. Documentación y Health
+### ------------------------------------------------------------------------------
+
+### Chequeo de salud
+GET {{baseUrl}}/health
+
+### OpenAPI Docs (JSON)
+GET {{baseUrl}}/v3/api-docs
+
+### Swagger UI: abrir en el navegador
+# http://localhost:8080/swagger-ui/index.html
+
+
+### ------------------------------------------------------------------------------
+### 2. Catálogo de Productos (DummyJSON, TP1)
+### ------------------------------------------------------------------------------
+
+### Listar productos paginados
+GET {{baseUrl}}/api/productos?limit=5&skip=0
+
+### Obtener producto existente por ID
+GET {{baseUrl}}/api/productos/1
+
+### Obtener producto inexistente (404 Not Found)
+GET {{baseUrl}}/api/productos/999999
+
+
+### ------------------------------------------------------------------------------
+### 3. Listas (TP2)
+### ------------------------------------------------------------------------------
+
+### Listar todas las listas existentes (200 OK)
+GET {{baseUrl}}/api/listas
+
+### Crear lista de favoritos (201 Created)
+# @name crearLista
+POST {{baseUrl}}/api/listas
+Content-Type: application/json
+
+{
+  "nombre": "Regalos de Cumpleaños"
+}
+
+### Crear una segunda lista para mover favoritos luego (201 Created)
+# @name crearListaDestino
+POST {{baseUrl}}/api/listas
+Content-Type: application/json
+
+{
+  "nombre": "Para Comprar en Oferta"
+}
+
+### Error de validación: nombre vacío (400 Bad Request)
+POST {{baseUrl}}/api/listas
+Content-Type: application/json
+
+{
+  "nombre": ""
+}
+
+### Obtener una lista por ID (200 OK)
+GET {{baseUrl}}/api/listas/1
+
+### Obtener lista inexistente (404 Not Found)
+GET {{baseUrl}}/api/listas/99999
+
+
+### ------------------------------------------------------------------------------
+### 4. Favoritos sobre JPA (TP2)
+### ------------------------------------------------------------------------------
+
+### Crear favorito asociado a una lista (201 Created)
+# Reemplazar listaId con un id de lista existente (por ejemplo 1)
+# @name crearFavorito
+POST {{baseUrl}}/api/favoritos
+Content-Type: application/json
+
+{
+  "productoId": 1,
+  "nota": "Perfume para regalo",
+  "listaId": 1
+}
+
+### Error de validación: listaId ausente (400 Bad Request)
+POST {{baseUrl}}/api/favoritos
+Content-Type: application/json
+
+{
+  "productoId": 1,
+  "nota": "Favorito sin lista"
+}
+
+### Listar todos los favoritos (200 OK)
+GET {{baseUrl}}/api/favoritos
+
+### Obtener un favorito por ID (200 OK)
+GET {{baseUrl}}/api/favoritos/1
+
+### Obtener favorito inexistente (404 Not Found)
+GET {{baseUrl}}/api/favoritos/99999
+
+### Favoritos pertenecientes a una lista puntual (200 OK)
+GET {{baseUrl}}/api/listas/1/favoritos
+
+### Actualizar nota y lista de un favorito (200 OK)
+PUT {{baseUrl}}/api/favoritos/1
+Content-Type: application/json
+
+{
+  "productoId": 1,
+  "nota": "Nota actualizada para el producto",
+  "listaId": 1
+}
+
+
+### ------------------------------------------------------------------------------
+### 5. Regla de Negocio: 409 Conflict y Transacciones (TP2)
+### ------------------------------------------------------------------------------
+
+### Caso de error 409: intentar borrar una lista que todavía tiene favoritos
+# Debe devolver 409 Conflict (no 500)
+DELETE {{baseUrl}}/api/listas/1
+
+### Operación transaccional: reasignar favoritos y eliminar la lista origen (204 No Content)
+# Reasigna todos los favoritos de la lista 1 a la lista 3, y borra la lista 1
+POST {{baseUrl}}/api/listas/1/mover-favoritos
+Content-Type: application/json
+
+{
+  "listaDestinoId": 3
+}
+
+### Error 404 al mover favoritos: destino inexistente
+POST {{baseUrl}}/api/listas/3/mover-favoritos
+Content-Type: application/json
+
+{
+  "listaDestinoId": 99999
+}
+
+### Eliminar una lista vacía (204 No Content)
+# Creamos una lista temporal y la eliminamos vacía
+# @name crearListaTemporal
+POST {{baseUrl}}/api/listas
+Content-Type: application/json
+
+{
+  "nombre": "Lista Temporal Vacia"
+}
+
+### Borrar la lista vacía creada recién (204 No Content)
+# Suponiendo que el id asignado es 4:
+DELETE {{baseUrl}}/api/listas/4
