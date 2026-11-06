@@ -14,6 +14,7 @@ public class HealthController {
         Map<String, String> response = new LinkedHashMap<>();
         response.put("status", "ok");
         response.put("service", "demo");
+        response.put("version", "v2");
         return response;
     }
 }

@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: web2-demo
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeployTrigger: checksPass
+    envVars:
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        fromDatabase:
+          name: web2-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: web2-db
+          property: password
+      - key: JWT_SECRETO
+        generateValue: true
+
+databases:
+  - name: web2-db
+    plan: free
+    databaseName: web2
+    user: web2

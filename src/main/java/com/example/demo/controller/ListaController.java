@@ -22,7 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/listas")
-@Tag(name = "listas", description = "Gestión de listas para organizar favoritos")
+@Tag(name = "listas", description = "Gestión de listas para organizar favoritos (requiere autenticación JWT, autorización por propiedad y rol)")
 public class ListaController {
 
     private final ListaService service;

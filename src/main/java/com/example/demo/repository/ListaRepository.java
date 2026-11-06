@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface ListaRepository {
     List<Lista> findAll();
     Optional<Lista> findById(Long id);
+    List<Lista> findByUsuarioId(Long usuarioId);
     Lista save(Lista lista);
     void deleteById(Long id);
     boolean existsById(Long id);

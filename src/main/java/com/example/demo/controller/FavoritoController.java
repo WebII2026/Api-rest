@@ -27,7 +27,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/favoritos")
-@Tag(name = "favoritos", description = "Favoritos del usuario sobre el catálogo de productos (persistencia en PostgreSQL vía JPA)")
+@Tag(name = "favoritos", description = "Favoritos del usuario sobre el catálogo de productos (requiere autenticación JWT)")
 public class FavoritoController {
 
     private final FavoritoService service;

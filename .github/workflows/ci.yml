@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verificar:
+    name: Compilar y probar
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Instalar Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Dar permisos de ejecución a mvnw
+        run: chmod +x mvnw
+
+      - name: 1 · Compilar el proyecto y las pruebas
+        run: ./mvnw --batch-mode test-compile
+
+      - name: 2 · Pruebas unitarias
+        run: ./mvnw --batch-mode test
+
+      - name: 3 · Pruebas de integración y cobertura
+        run: ./mvnw --batch-mode verify
+
+      - name: Guardar el reporte de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-de-cobertura
+          path: target/site/jacoco

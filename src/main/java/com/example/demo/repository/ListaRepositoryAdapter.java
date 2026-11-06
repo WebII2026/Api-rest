@@ -15,9 +15,11 @@ import java.util.Optional;
 public class ListaRepositoryAdapter implements ListaRepository {
 
     private final ListaJpaRepository jpaRepository;
+    private final UsuarioJpaRepository usuarioJpaRepository;
 
-    public ListaRepositoryAdapter(ListaJpaRepository jpaRepository) {
+    public ListaRepositoryAdapter(ListaJpaRepository jpaRepository, UsuarioJpaRepository usuarioJpaRepository) {
         this.jpaRepository = jpaRepository;
+        this.usuarioJpaRepository = usuarioJpaRepository;
     }
 
     @Override
@@ -33,12 +35,22 @@ public class ListaRepositoryAdapter implements ListaRepository {
     }
 
     @Override
+    public List<Lista> findByUsuarioId(Long usuarioId) {
+        return jpaRepository.findByUsuarioId(usuarioId).stream()
+                .map(this::aDominio)
+                .toList();
+    }
+
+    @Override
     public Lista save(Lista lista) {
         ListaEntity entity = new ListaEntity();
         if (lista.id() != null) {
             entity.setId(lista.id());
         }
         entity.setNombre(lista.nombre());
+        if (lista.usuarioId() != null) {
+            entity.setUsuario(usuarioJpaRepository.getReferenceById(lista.usuarioId()));
+        }
         ListaEntity guardado = jpaRepository.save(entity);
         return aDominio(guardado);
     }
@@ -54,6 +66,7 @@ public class ListaRepositoryAdapter implements ListaRepository {
     }
 
     private Lista aDominio(ListaEntity entity) {
-        return new Lista(entity.getId(), entity.getNombre());
+        Long usuarioId = entity.getUsuario() != null ? entity.getUsuario().getId() : null;
+        return new Lista(entity.getId(), entity.getNombre(), usuarioId);
     }
 }
